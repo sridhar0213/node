@@ -21,18 +21,14 @@ const db = new sqlite3.Database('./test.db',sqlite3.OPEN_READWRITE,(err)=>{
 
 
 //to create table
-// db.run('CREATE TABLE users(name,phone,message)');
+// db.run('CREATE TABLE users(name,phone,message,date,id)');
 
 //to insert data
-// const data = 'INSERT INTO users (name,phone,message) VALUES(?,?,?)';
-// db.run(data,['mike4','23rfv88834','wrdfit'],(err)=>{
+// const data = 'INSERT INTO users (name,phone,message,date,id) VALUES(?,?,?,?,?)';
+// db.run(data,['mike4','23rfv88834','wrdfit','date','45'],(err)=>{
 //     if (err) return console.log(err.message)
 //     console.log("inserted")
 // })
-
-
-
-
 
 
 
@@ -57,25 +53,42 @@ app.get('/usersData', (req, res) => {
 app.post('/addUsers', (req, res) => {
    //to insert data
 
-   console.log(req.body)
+  //  console.log(req.body)
    const name = req.body.name;
    const phone = req.body.phone;
    const message = req.body.message;
-   console.log(name)
-   console.log(phone)
+   const date = new Date();
+   const id = Date.now();
+  
 
-    const data = 'INSERT INTO users (name,phone,message) VALUES(?,?,?)';
-    db.run(data,[name,phone,message],(err)=>{
+   if(name || phone || message){
+    const data = 'INSERT INTO users (name,phone,message,date,id) VALUES(?,?,?,?,?)';
+    db.run(data,[name,phone,message,date,id],(err)=>{
         if (err) return console.log(err.message)
         console.log("inserted")
-        res.send('Got a POST request')
+        res.send('saved successfully')
     })
+
+  }else{
+    res.send('bye bye successfully')
+  }
     
+  })
+
+
+  app.post('/deleteAllRecords',(req,res)=>{
+    const sql = 'DELETE FROM users'
+    if(req.body.key){
+    db.run(sql,[],(err)=>{
+      if(err) return console.log(err.message)
+      res.send('Deleted all recodrs')
+    })
+  }else{
+    res.send("thank you")
+  }
   })
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-// app.use('/.netlify/functions/api',router);
-// module.exports.handler = serverless(app);
