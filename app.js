@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 //const bodyParser = require('body-parser');
+var nm = require('nodemailer');
+
 
 const app = express()
 // const router = express.Router();
@@ -59,9 +61,43 @@ app.post('/addUsers', (req, res) => {
    const message = req.body.message;
    const date = new Date();
    const id = Date.now();
+   let sentMail = req.body.sentMail;
+    let sentPass = req.body.sentPass;
+    let toMail = req.body.toMail;
+    let subject = req.body.subject;
   
 
    if(name || phone || message){
+    var transporter = nm.createTransport(
+      {
+        
+        service: 'gmail',
+        secure:false,
+        auth:{
+          user:sentMail,
+          pass:sentPass
+        }
+      }
+    )
+    console.log(sentMail ,
+    sentPass,
+    toMail,subject)
+    var mailOptions = {
+      from: sentMail,
+      to: toMail,
+      subject: subject,
+     // text: '<div>'+name+'</div>'
+     html: '<div>Name : '+name+'</div>'+'<div>Phone : '+phone+'</div>'+'<div>Message : '+message+'</div>'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
     const data = 'INSERT INTO users (name,phone,message,date,id) VALUES(?,?,?,?,?)';
     db.run(data,[name,phone,message,date,id],(err)=>{
         if (err) return console.log(err.message)
@@ -91,4 +127,6 @@ app.post('/addUsers', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+// app.listen(3000, '127.0.0.1');
 
